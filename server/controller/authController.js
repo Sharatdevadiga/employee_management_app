@@ -31,7 +31,6 @@ async function createSendTokenWithCookie(
       ),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
     };
 
     res.cookie("jwt", token, cookieOptions);
@@ -50,6 +49,7 @@ async function createSendTokenWithCookie(
 export async function userSignup(req, res) {
   try {
     // IF name ALREADY TAKEN THEN SHOW ERROR
+    console.log(req.body);
     const { name, password } = req.body;
 
     let user = await User.findOne({ name });

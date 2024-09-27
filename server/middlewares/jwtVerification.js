@@ -5,6 +5,7 @@ import { errorHandler } from "../utils/handlers.js";
 
 //
 export async function protect(req, res, next) {
+  console.log(req.cookies.refreshToken);
   let token;
   const headerCondition =
     req.headers.authorization && req.headers.authorization.startsWith("Bearer");

@@ -4,7 +4,7 @@ import Logo from "../Logo";
 
 function Navigation() {
   return (
-    <nav className="z-50 flex w-full items-center justify-between bg-black p-4">
+    <nav className="z-50 flex w-full items-center justify-between bg-gray-transparent p-4 backdrop-blur-xl">
       <div>
         <Logo />
       </div>

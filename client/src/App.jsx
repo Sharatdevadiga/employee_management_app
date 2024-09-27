@@ -7,14 +7,31 @@ import { store } from "./store";
 import CreateEmployee from "./pages/CreateEmployee";
 import Layout from "./components/Layout";
 import EMployeeList from "./pages/EMployeeList";
+import Home from "./pages/Home";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <Provider store={store}>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route path="createEmployee" element={<CreateEmployee />} />
-          <Route path="employeeList" element={<EMployeeList />} />
+          <Route path="/" element={<Home />} />
+          <Route
+            path="createEmployee"
+            element={
+              <ProtectedRoute>
+                <CreateEmployee />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="employeeList"
+            element={
+              <ProtectedRoute>
+                <EMployeeList />
+              </ProtectedRoute>
+            }
+          />
         </Route>
         <Route path="login" element={<Login />} />
       </Routes>

@@ -1,12 +1,17 @@
 import { useFormik } from "formik";
 import validate from "validate.js";
 import Logo from "../components/Logo";
+import { BASE_URL, LOGIN } from "../config/endpoints";
+import useCustomFetcher from "../hooks/useCustomFetcher";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { markAuthenticated } from "../slice/Auth";
+import { useNavigate } from "react-router";
 
 // Step 2: Define validation schema
 const validationSchema = {
-  email: {
+  name: {
     presence: { allowEmpty: false, message: "is required" },
-    email: { message: "is not valid" },
   },
   password: {
     presence: { allowEmpty: false, message: "is required" },
@@ -15,18 +20,35 @@ const validationSchema = {
 };
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { customFetcher, isLoading: isSumbitting } = useCustomFetcher();
+
   const formik = useFormik({
     initialValues: {
-      email: "",
+      name: "",
       password: "",
     },
-    // Step 3: Integrate validation with Formik
+
     validate: (values) => {
       const errors = validate(values, validationSchema);
       return errors || {};
     },
-    onSubmit: (values) => {
-      console.log("Form data", values);
+    onSubmit: async (values) => {
+      const { data, error } = await customFetcher(
+        "POST",
+        `${BASE_URL}${LOGIN}`,
+        values,
+      );
+      if (data && data.status === "success") {
+        dispatch(
+          markAuthenticated({ isAuthenticated: true, user: values.name }),
+        );
+        toast.success("Login successful!");
+        return navigate("/");
+      } else {
+        toast.error(`Login failed: ${error || "Unknown error"}`);
+      }
     },
   });
 
@@ -40,19 +62,19 @@ const Login = () => {
         <h2 className="mb-6 text-center text-2xl font-bold">Login</h2>
         <div className="relative mb-8">
           <label htmlFor="email" className="text-gray-700 block">
-            Email
+            User Name
           </label>
           <input
-            id="email"
-            name="email"
-            type="email"
+            id="name"
+            name="name"
+            type="text"
             onChange={formik.handleChange}
-            value={formik.values.email}
+            value={formik.values.name}
             className="mt-1 w-full rounded border bg-gray-transparent p-2"
           />
-          {formik.errors.email && (
+          {formik.errors.name && (
             <div className="absolute bottom-[-16px] mt-1 text-[10px] text-red-500">
-              {formik.errors.email}
+              {formik.errors.name}
             </div>
           )}
         </div>
@@ -77,6 +99,7 @@ const Login = () => {
         <button
           type="submit"
           className="w-full rounded bg-primary py-2 text-white shadow-md shadow-purple-800 transition duration-200 hover:bg-purple-700"
+          disabled={isSumbitting}
         >
           Submit
         </button>
