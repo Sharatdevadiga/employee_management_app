@@ -120,9 +120,10 @@ const deleteEmployee = async (req, res) => {
         message: "Employee not found",
       });
     }
-    res.status(204).json({
+    res.status(200).json({
       status: "success",
       message: "Employee deleted successfully",
+      data: [],
     });
   } catch (error) {
     res.status(400).json({

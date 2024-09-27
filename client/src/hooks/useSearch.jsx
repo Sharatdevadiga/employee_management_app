@@ -1,0 +1,57 @@
+import { useEffect, useState } from "react";
+import useDebouncer from "./useDebouncer";
+
+function useSearch(type = "movie", initialQuery = "") {
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(false);
+
+  const debouncedSearchQuery = useDebouncer(searchQuery);
+
+  function initialReset() {
+    setIsSearchLoading(false);
+    setSearchError(false);
+  }
+
+  async function fetchData(query) {
+    initialReset();
+
+    let endpoint = endpoints.search;
+    const encodedQuery = encodeURIComponent(query);
+    endpoint += `?query=${encodedQuery}`;
+
+    try {
+      setIsSearchLoading(true);
+      const data = await fetcher(endpoint);
+
+      //   setSearchResults([...data.data.movie]);
+      setSearchResults(data.data);
+    } catch {
+      setSearchError("Failed to fetch the search results");
+    } finally {
+      setIsSearchLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (debouncedSearchQuery) {
+      fetchData(debouncedSearchQuery);
+    }
+
+    if (searchQuery.length === 0) {
+      setSearchResults(() => []);
+    }
+  }, [debouncedSearchQuery]);
+
+  return {
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    isSearchLoading,
+    searchError,
+    debouncedSearchQuery,
+  };
+}
+
+export default useSearch;

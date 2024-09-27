@@ -1,10 +1,20 @@
+/* eslint-disable react/prop-types */
 import { useFormik } from "formik";
 import { useDispatch } from "react-redux";
 import validate from "validate.js";
 import useCustomFetcher from "../hooks/useCustomFetcher";
 import { BASE_URL, EMPLOYEES } from "../config/endpoints";
-import { markAuthenticated } from "../slice/Auth";
 import { toast } from "react-toastify";
+
+const initial = {
+  name: "",
+  email: "",
+  mobile: "",
+  designation: "",
+  gender: "",
+  course: [],
+  img: null,
+};
 
 const validationSchema = {
   name: {
@@ -32,18 +42,11 @@ const validationSchema = {
   },
 };
 
-const NewEmployee = (
-  initialValues = {
-    name: "",
-    email: "",
-    mobile: "",
-    designation: "",
-    gender: "",
-    course: [],
-    img: null,
-  },
-) => {
-  const dispatch = useDispatch();
+const NewEmployee = ({
+  initialValues = initial,
+  method = "POST",
+  id = null,
+}) => {
   const { isLoading, customFetcher } = useCustomFetcher();
 
   const formik = useFormik({
@@ -53,33 +56,24 @@ const NewEmployee = (
       return errors || {};
     },
     onSubmit: async (values) => {
-      console.log(values);
+      values = method === "POST" ? values : { ...values, id };
       const { data, error } = await customFetcher(
-        "POST",
-        `${BASE_URL}${EMPLOYEES}`,
+        method,
+        `${BASE_URL}${EMPLOYEES}${id ? `/${id}` : ""}`,
         values,
       );
       if (data && data.status === "success") {
-        dispatch(
-          markAuthenticated({ isAuthenticated: true, user: values.name }),
+        toast.success(
+          `Employee data ${method === "POST" ? "created" : method === "PATCH" ? "updated" : "deleted"} successfully`,
         );
-        toast.success("Employee data created successfully!");
       } else if (error) {
-        toast.error(`EMployee data creation failed"}`);
+        toast.error(`Encountered an error"}`);
       }
     },
   });
 
   const handleReset = () => {
-    formik.setValues({
-      name: "",
-      email: "",
-      mobile: "",
-      designation: "",
-      gender: "",
-      course: [],
-      img: null,
-    });
+    formik.setValues(initialValues);
   };
 
   return (
@@ -179,6 +173,7 @@ const NewEmployee = (
               type="radio"
               value="M"
               onChange={formik.handleChange}
+              checked={formik.values.gender === "M"}
               className="mr-2"
             />
             <label htmlFor="male" className="mr-4">
@@ -190,6 +185,7 @@ const NewEmployee = (
               type="radio"
               value="F"
               onChange={formik.handleChange}
+              checked={formik.values.gender === "F"}
               className="mr-2"
             />
             <label htmlFor="female">Female</label>
@@ -210,6 +206,7 @@ const NewEmployee = (
               type="checkbox"
               value="MCA"
               onChange={formik.handleChange}
+              checked={formik.values.course.includes("MCA")}
               className="mr-2"
             />
             <label htmlFor="mca" className="mr-4">
@@ -221,6 +218,7 @@ const NewEmployee = (
               type="checkbox"
               value="BCA"
               onChange={formik.handleChange}
+              checked={formik.values.course.includes("BCA")}
               className="mr-2"
             />
             <label htmlFor="bca" className="mr-4">
@@ -232,6 +230,7 @@ const NewEmployee = (
               type="checkbox"
               value="BSC"
               onChange={formik.handleChange}
+              checked={formik.values.course.includes("BSC")}
               className="mr-2"
             />
             <label htmlFor="bsc">BSC</label>

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 const EmployeeCard = ({ employee }) => {
   return (
     <div className="border-gray-300 mb-4 flex items-center rounded border p-4 shadow-md">
@@ -22,9 +23,9 @@ const EmployeeCard = ({ employee }) => {
           Created At: {new Date(employee.createdAt).toLocaleDateString()}
         </p>
       </div>
-      <div className="ml-4 flex flex-col justify-center">
+      <div className="flex flex-col justify-center">
         <button className="mb-2 text-blue-600">Edit</button>
-        <button className="text-red-600">Delete</button>
+        <button className="text-red-400">Delete</button>
       </div>
     </div>
   );
